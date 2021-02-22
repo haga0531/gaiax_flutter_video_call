@@ -52,48 +52,52 @@ class _OnCallState extends State<OnCall> {
     Navigator.pop(context);
   }
 
+  Widget _rowLayout() {
+    if (_remoteUid != null) {
+      return Container(
+        child: Column(
+          children: [
+            Expanded(child: _renderRemoteVideo()),
+            Expanded(child: _renderLocalPreview()),
+          ],
+        ),
+      );
+    }
+    return Container(
+      child: Column(
+        children: [Expanded(child: _renderLocalPreview())],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text(''),
+          title: const Text('room1'), // TODO: 動的に渡したい
         ),
-        body: Stack(
-          children: [
-            Center(
-              child: _switch ? _renderRemoteVideo() : _renderLocalPreview(),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Container(
-                width: 100,
-                height: 100,
-                color: Colors.blue,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _switch = !_switch;
-                    });
-                  },
-                  child: Center(
-                    child:
-                        _switch ? _renderLocalPreview() : _renderRemoteVideo(),
-                  ),
-                ),
-              ),
-            ),
-            RaisedButton(onPressed: () {
+        body: Stack(children: [
+          _rowLayout(),
+          new Container(child: SizedBox(
+            child: new RaisedButton(onPressed: () {
               exitRoom();
             },
-            child: Text('Exit'),)
-          ],
-        ),
+            child: Text("Stop Video Call", style: TextStyle(color: Colors.white, fontSize: 20),),
+                color: Colors.orange,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+            ),
+            width: 300,
+          ),
+          alignment: Alignment.bottomCenter,
+          padding: EdgeInsets.only(bottom: 40),
+          ) 
+        ]),
       ),
     );
   }
 
-  Widget _renderLocalPreview() {
+  _renderLocalPreview() {
     if (_joined) {
       return RtcLocalView.SurfaceView();
     } else {

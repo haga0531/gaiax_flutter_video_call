@@ -43,9 +43,6 @@ class _VideoCallState extends State<VideoCall> {
                   style: TextStyle(fontSize: 25),
                 ),
                 onPressed: () {
-                  setState(() {
-                    isLoading = true;
-                  });
                   onEnterRoom(1);
                 },
                 color: Colors.orange,
@@ -78,7 +75,6 @@ class _VideoCallState extends State<VideoCall> {
                 ),
                 onPressed: () {
                   setState(() {
-                    isLoading = true;
                     _inputRoomId = int.parse(_controller.text);
                     _controller.text = '';
                   });

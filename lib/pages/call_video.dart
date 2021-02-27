@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gaiax_flutter_video_call/pages/on_call.dart';
 
 class VideoCall extends StatefulWidget {
   @override
@@ -7,7 +8,7 @@ class VideoCall extends StatefulWidget {
 
 class _VideoCallState extends State<VideoCall> {
   TextEditingController _controller;
-  int _inputRoomId = 1;
+  String _inputChannelName;
 
   @override
   void initState() {
@@ -15,8 +16,13 @@ class _VideoCallState extends State<VideoCall> {
     _controller = TextEditingController();
   }
 
-  onEnterRoom(roomId) async {
-    Navigator.pushNamed(context, '/video_call_room');
+  onEnterRoom() async {
+    var channelName = _inputChannelName != null ? _inputChannelName : 'room1';
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                OnCall(channelName: channelName)));
   }
 
   Widget _layout() {
@@ -43,7 +49,7 @@ class _VideoCallState extends State<VideoCall> {
                   style: TextStyle(fontSize: 25),
                 ),
                 onPressed: () {
-                  onEnterRoom(1);
+                  onEnterRoom();
                 },
                 color: Colors.orange,
                 textTheme: ButtonTextTheme.primary,
@@ -75,10 +81,10 @@ class _VideoCallState extends State<VideoCall> {
                 ),
                 onPressed: () {
                   setState(() {
-                    _inputRoomId = int.parse(_controller.text);
+                    _inputChannelName = _controller.text.trim();
                     _controller.text = '';
                   });
-                  onEnterRoom(_inputRoomId);
+                  onEnterRoom();
                 },
                 color: Colors.orange,
                 textTheme: ButtonTextTheme.primary,

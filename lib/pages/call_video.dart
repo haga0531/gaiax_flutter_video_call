@@ -7,13 +7,32 @@ class VideoCall extends StatefulWidget {
 }
 
 class _VideoCallState extends State<VideoCall> {
-  TextEditingController _controller;
+  final inputRoomIdController = TextEditingController();
   String _inputChannelName;
+  bool _isEnabled = false;
+
+  @override
+  void dispose() {
+    inputRoomIdController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    inputRoomIdController.addListener(validRoomId);
+  }
+
+  validRoomId() {
+    if (inputRoomIdController.text.isNotEmpty) {
+      setState(() {
+        _isEnabled = true;
+      });
+    } else {
+      setState(() {
+        _isEnabled = false;
+      });
+    }
   }
 
   onEnterRoom() async {
@@ -21,8 +40,7 @@ class _VideoCallState extends State<VideoCall> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                OnCall(channelName: channelName)));
+            builder: (context) => OnCall(channelName: channelName)));
   }
 
   Widget _layout() {
@@ -38,30 +56,30 @@ class _VideoCallState extends State<VideoCall> {
               'Video Call',
               textScaleFactor: 2,
             ),
-            Container(
-                child: ButtonTheme(
-              minWidth: 280.0,
-              height: 60.0,
-              child: RaisedButton(
-                elevation: 10.0,
-                child: Text(
-                  "Start Video Call",
-                  style: TextStyle(fontSize: 25),
-                ),
-                onPressed: () {
-                  onEnterRoom();
-                },
-                color: Colors.orange,
-                textTheme: ButtonTextTheme.primary,
-              ),
-            )),
-            SizedBox(
-              height: 50,
-            ),
+            // Container(
+            //     child: ButtonTheme(
+            //   minWidth: 280.0,
+            //   height: 60.0,
+            //   child: RaisedButton(
+            //     elevation: 10.0,
+            //     child: Text(
+            //       "Start Video Call",
+            //       style: TextStyle(fontSize: 25),
+            //     ),
+            //     onPressed: () {
+            //       onEnterRoom();
+            //     },
+            //     color: Colors.orange,
+            //     textTheme: ButtonTextTheme.primary,
+            //   ),
+            // )),
+            // SizedBox(
+            //   height: 50,
+            // ),
             Container(
               width: 280,
               child: TextField(
-                controller: _controller,
+                controller: inputRoomIdController,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(), labelText: 'ルームIDを入力'),
               ),
@@ -79,13 +97,15 @@ class _VideoCallState extends State<VideoCall> {
                   "Join Video Call",
                   style: TextStyle(fontSize: 25),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _inputChannelName = _controller.text.trim();
-                    _controller.text = '';
-                  });
-                  onEnterRoom();
-                },
+                onPressed: !_isEnabled
+                    ? null
+                    : () {
+                        setState(() {
+                          _inputChannelName = inputRoomIdController.text.trim();
+                          inputRoomIdController.text = '';
+                        });
+                        onEnterRoom();
+                      },
                 color: Colors.orange,
                 textTheme: ButtonTextTheme.primary,
               ),

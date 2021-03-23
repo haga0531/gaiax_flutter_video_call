@@ -36,7 +36,7 @@ class _VideoCallState extends State<VideoCall> {
   }
 
   onEnterRoom() async {
-    var channelName = _inputChannelName != null ? _inputChannelName : 'room1';
+    var channelName = _inputChannelName;
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -56,26 +56,6 @@ class _VideoCallState extends State<VideoCall> {
               'Video Call',
               textScaleFactor: 2,
             ),
-            // Container(
-            //     child: ButtonTheme(
-            //   minWidth: 280.0,
-            //   height: 60.0,
-            //   child: RaisedButton(
-            //     elevation: 10.0,
-            //     child: Text(
-            //       "Start Video Call",
-            //       style: TextStyle(fontSize: 25),
-            //     ),
-            //     onPressed: () {
-            //       onEnterRoom();
-            //     },
-            //     color: Colors.orange,
-            //     textTheme: ButtonTextTheme.primary,
-            //   ),
-            // )),
-            // SizedBox(
-            //   height: 50,
-            // ),
             Container(
               width: 280,
               child: TextField(

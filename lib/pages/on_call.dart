@@ -31,7 +31,8 @@ class _OnCallState extends State<OnCall> {
 
   genToken(uid) async {
     String token;
-    const url = 'http://localhost:8080/api';
+    // const url = 'http://localhost:8080/api';
+    const url = 'https://agora-node-server.herokuapp.com/api';
 
     var response = await http.post(url,
         body: {'channelName': '${widget.channelName}', 'uid': '$uid'});
@@ -139,7 +140,7 @@ class _OnCallState extends State<OnCall> {
       return RtcLocalView.SurfaceView();
     } else {
       return Text(
-        'Please join channel first',
+        '読み込み中...',
         textAlign: TextAlign.center,
       );
     }

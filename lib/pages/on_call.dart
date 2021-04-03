@@ -18,10 +18,9 @@ class OnCall extends StatefulWidget {
 }
 
 class _OnCallState extends State<OnCall> {
-  bool _joined = false;
-  int _remoteUid = null;
-  bool _switch = false;
   RtcEngine _rtcEngine;
+  final _users = <int>[];
+  bool _joined = false;
 
   @override
   void initState() {
@@ -31,7 +30,6 @@ class _OnCallState extends State<OnCall> {
 
   genToken(uid) async {
     String token;
-    // const url = 'http://localhost:8080/api';
     const url = 'https://agora-node-server.herokuapp.com/api';
 
     var response = await http.post(url,
@@ -48,7 +46,6 @@ class _OnCallState extends State<OnCall> {
 
   Future<void> initPlatformState() async {
     final String appId = env['APP_ID'];
-
     var randomInt = new Random();
     var uid = randomInt.nextInt(100);
     var token = await genToken(uid);
@@ -56,22 +53,26 @@ class _OnCallState extends State<OnCall> {
     await PermissionHandler().requestPermissions(
       [PermissionGroup.camera, PermissionGroup.microphone],
     );
-
     _rtcEngine = await RtcEngine.create(appId);
     _rtcEngine.setEventHandler(RtcEngineEventHandler(
-        joinChannelSuccess: (String channel, int uid, int elapsed) {
-      setState(() {
-        _joined = true;
-      });
-    }, userJoined: (int uid, int elapsed) {
-      setState(() {
-        _remoteUid = uid;
-      });
-    }, userOffline: (int uid, UserOfflineReason reason) {
-      setState(() {
-        _remoteUid = null;
-      });
-    }));
+      // localUserのtrigger
+      joinChannelSuccess: (String channel, int uid, int elapsed) {
+        setState(() {
+          _joined = true;
+        });
+      },
+      userJoined: (int uid, int elapsed) {
+        // remoteUserのtrigger
+        setState(() {
+          _users.add(uid);
+        });
+      },
+      userOffline: (int uid, UserOfflineReason reason) {
+        setState(() {
+          _users.remove(uid);
+        });
+      },
+    ));
     await _rtcEngine.enableVideo();
     await _rtcEngine.joinChannel(token, '${widget.channelName}', null, uid);
   }
@@ -82,22 +83,75 @@ class _OnCallState extends State<OnCall> {
     Navigator.pop(context);
   }
 
-  Widget _rowLayout() {
-    if (_remoteUid != null) {
-      return Container(
-        child: Column(
-          children: [
-            Expanded(child: _renderRemoteVideo()),
-            Expanded(child: _renderLocalPreview()),
-          ],
-        ),
-      );
-    }
-    return Container(
-      child: Column(
-        children: [Expanded(child: _renderLocalPreview())],
+  List<Widget> _renderViewList() {
+    final List<Widget> viewList = [];
+    viewList.add(RtcLocalView.SurfaceView());
+    _users.forEach(
+        (int uid) => viewList.add(RtcRemoteView.SurfaceView(uid: uid)));
+    return viewList;
+  }
+
+  Widget _expandedView(List<Widget> views) {
+    final viewList = views.map<Widget>(_view).toList();
+    return Expanded(
+      child: Row(
+        children: viewList,
       ),
     );
+  }
+
+  Widget _view(view) {
+    return Expanded(
+        child: Container(
+      child: view,
+    ));
+  }
+
+  // 自分を画面右下にするための実装
+  List<Widget> _reverseViewList(List<Widget> view) {
+    return view.reversed.toList();
+  }
+
+  Widget _rowLayout() {
+    final viewList = _renderViewList();
+
+    // UI的にcaseが増えることはないからハードコードで良さそう.
+    switch (viewList.length) {
+      case 1:
+        return _joined
+            ? Container(
+                // ここでflagを持たせることでいい感じにカメラがつくようになった
+                child: Column(
+                children: [_view(viewList[0])],
+              ))
+            : Container(child: Text('Loading...'));
+      case 2:
+        return Container(
+            child: Column(
+          children: [
+            _expandedView([viewList[1]]),
+            _expandedView([viewList[0]])
+          ],
+        ));
+      case 3:
+        return Container(
+            child: Column(
+          children: [
+            _expandedView(viewList.sublist(2, 3)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2))),
+          ],
+        ));
+      case 4:
+        return Container(
+            child: Column(
+          children: [
+            _expandedView(viewList.sublist(2, 4)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2)))
+          ],
+        ));
+      default:
+    }
+    return Container();
   }
 
   @override
@@ -133,27 +187,5 @@ class _OnCallState extends State<OnCall> {
         ]),
       ),
     );
-  }
-
-  Widget _renderLocalPreview() {
-    if (_joined) {
-      return RtcLocalView.SurfaceView();
-    } else {
-      return Text(
-        '読み込み中...',
-        textAlign: TextAlign.center,
-      );
-    }
-  }
-
-  Widget _renderRemoteVideo() {
-    if (_remoteUid != null) {
-      return RtcRemoteView.SurfaceView(uid: _remoteUid);
-    } else {
-      return Text(
-        'Please wait remote user join',
-        textAlign: TextAlign.center,
-      );
-    }
   }
 }

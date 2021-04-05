@@ -137,7 +137,7 @@ class _OnCallState extends State<OnCall> {
         return Container(
             child: Column(
           children: [
-            _expandedView(viewList.sublist(2, 3)),
+            _expandedView(viewList.sublist(2)),
             _expandedView(_reverseViewList(viewList.sublist(0, 2))),
           ],
         ));
@@ -145,6 +145,44 @@ class _OnCallState extends State<OnCall> {
         return Container(
             child: Column(
           children: [
+            _expandedView(viewList.sublist(2)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2)))
+          ],
+        ));
+      case 5:
+        return Container(
+            child: Column(
+          children: [
+            _expandedView(viewList.sublist(4)),
+            _expandedView(viewList.sublist(2, 4)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2)))
+          ],
+        ));
+      case 6:
+        return Container(
+            child: Column(
+          children: [
+             _expandedView(viewList.sublist(4)),
+            _expandedView(viewList.sublist(2, 4)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2)))
+          ],
+        ));
+      case 7:
+        return Container(
+            child: Column(
+          children: [
+             _expandedView(viewList.sublist(6)),
+             _expandedView(viewList.sublist(4, 6)),
+            _expandedView(viewList.sublist(2, 4)),
+            _expandedView(_reverseViewList(viewList.sublist(0, 2)))
+          ],
+        ));
+      case 8:
+        return Container(
+            child: Column(
+          children: [
+             _expandedView(viewList.sublist(6)),
+             _expandedView(viewList.sublist(4, 6)),
             _expandedView(viewList.sublist(2, 4)),
             _expandedView(_reverseViewList(viewList.sublist(0, 2)))
           ],
@@ -161,7 +199,7 @@ class _OnCallState extends State<OnCall> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: new Text(roomId),
+          title: new Text('Video Call($roomId)'),
         ),
         body: Stack(children: [
           _rowLayout(),
